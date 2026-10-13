@@ -32,11 +32,11 @@ export function CreatePeriodDialog({ open, onOpenChange }: Props) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>New Crisis Period</DialogTitle>
+          <DialogTitle>Start a Crisis Update</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="period-name">Period name</Label>
+            <Label htmlFor="period-name">Name</Label>
             <Input
               id="period-name"
               placeholder="e.g. Update 1, Round 3…"
@@ -47,7 +47,7 @@ export function CreatePeriodDialog({ open, onOpenChange }: Props) {
           </div>
           <DialogFooter>
             <Button type="submit" disabled={isPending || !name.trim()}>
-              {isPending ? "Creating…" : "Create Period"}
+              {isPending ? "Starting…" : "Start Update"}
             </Button>
           </DialogFooter>
         </form>

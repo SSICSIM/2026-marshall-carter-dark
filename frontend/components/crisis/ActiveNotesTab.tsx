@@ -45,7 +45,7 @@ export function ActiveNotesTab({ activePeriodId }: Props) {
   if (!activePeriodId) {
     return (
       <p className="text-muted-foreground py-12 text-center text-sm">
-        Create a period above to start tracking crisis notes.
+        Start a crisis update above to begin tracking crisis notes.
       </p>
     );
   }
