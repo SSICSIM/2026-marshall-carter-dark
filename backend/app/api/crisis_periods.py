@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.api.net_worth import apply_market_movement
 from app.database import get_db
 from app.models.crisis_note import CrisisPeriod
 from app.schemas import CrisisPeriodCreate, CrisisPeriodResponse
@@ -59,6 +60,9 @@ def create_period(body: CrisisPeriodCreate, db: Session = Depends(get_db)) -> Cr
 
 @router.post("/{period_id}/archive", response_model=CrisisPeriodResponse)
 def archive_period(period_id: int, db: Session = Depends(get_db)) -> CrisisPeriod:
+    """Run a crisis update: archive the period (its crisis notes, directives
+    and net worth changes go with it), start the next one, and apply the
+    market movement in the same commit."""
     period = db.get(CrisisPeriod, period_id)
     if not period:
         raise HTTPException(status_code=404, detail="Period not found.")
@@ -68,6 +72,7 @@ def archive_period(period_id: int, db: Session = Depends(get_db)) -> CrisisPerio
     period.archived_at = datetime.now(timezone.utc)
     next_period = CrisisPeriod(name=_next_period_name(period.name), is_active=True)
     db.add(next_period)
+    apply_market_movement(db, next_period)
     db.commit()
     db.refresh(next_period)
     return next_period

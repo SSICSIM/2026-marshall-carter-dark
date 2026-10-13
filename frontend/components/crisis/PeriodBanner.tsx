@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Archive, CalendarPlus } from "lucide-react";
+import { CalendarPlus, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useActivePeriod } from "@/hooks/useCrisisPeriods";
@@ -21,10 +21,10 @@ export function PeriodBanner() {
     return (
       <>
         <div className="flex items-center justify-between rounded-lg border border-dashed px-4 py-3">
-          <p className="text-muted-foreground text-sm">No active crisis period.</p>
+          <p className="text-muted-foreground text-sm">No crisis update in progress.</p>
           <Button size="sm" onClick={() => setCreateOpen(true)}>
             <CalendarPlus className="mr-2 h-4 w-4" />
-            New Period
+            Start Update
           </Button>
         </div>
         <CreatePeriodDialog open={createOpen} onOpenChange={setCreateOpen} />
@@ -37,13 +37,13 @@ export function PeriodBanner() {
       <div className="flex items-center justify-between rounded-lg border bg-muted/30 px-4 py-3">
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Active Period
+            Current crisis update
           </p>
           <p className="font-semibold">{activePeriod.name}</p>
         </div>
         <Button variant="outline" size="sm" onClick={() => setArchiveOpen(true)}>
-          <Archive className="mr-2 h-4 w-4" />
-          Archive Period
+          <Zap className="mr-2 h-4 w-4" />
+          Run Crisis Update
         </Button>
       </div>
       <ArchivePeriodDialog

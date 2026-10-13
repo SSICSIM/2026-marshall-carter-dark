@@ -1,5 +1,6 @@
-import { CrisisTrackerPage } from "@/components/crisis/CrisisTrackerPage";
+import { redirect } from "next/navigation";
 
+// The site opens on the frontroom board; the Crisis Tracker lives at /tracker.
 export default function HomePage() {
-  return <CrisisTrackerPage />;
+  redirect("/frontroom");
 }

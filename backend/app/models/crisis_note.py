@@ -3,7 +3,7 @@ from __future__ import annotations
 import enum
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Index, String, Text, text
+from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, Index, Integer, String, Text, text
 from sqlalchemy import Enum as SAEnum
 from sqlalchemy import func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -27,6 +27,20 @@ class Character(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    # Whole dollars. ``baseline_net_worth`` is the value at the start of the
+    # current crisis update, so "difference" is net_worth - baseline.
+    net_worth: Mapped[int] = mapped_column(BigInteger, nullable=False, server_default="0")
+    baseline_net_worth: Mapped[int] = mapped_column(
+        BigInteger, nullable=False, server_default="0"
+    )
+    # Set by any manual change; the next crisis update skips this delegate's
+    # random fluctuation and clears the flag.
+    skip_fluctuation: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default="false"
+    )
+    # Wax seals currently held. Kept in step with the seal_movements ledger
+    # (see app/api/seals.py) and never negative.
+    seal_count: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

@@ -11,16 +11,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import type { NotesByCharacter } from "@/types/api";
 
-const chartConfig: ChartConfig = {
-  count: { label: "Notes", color: "var(--chart-1)" },
-};
+export function NotesByCharacterChart({
+  data,
+  title = "Notes by Character",
+  label = "Notes",
+}: {
+  data: NotesByCharacter[];
+  title?: string;
+  label?: string;
+}) {
+  const chartConfig: ChartConfig = { count: { label, color: "var(--chart-1)" } };
 
-export function NotesByCharacterChart({ data }: { data: NotesByCharacter[] }) {
   if (data.length === 0) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">Notes by Character</CardTitle>
+          <CardTitle className="text-sm">{title}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground py-8 text-center text-sm">No data yet.</p>
@@ -32,7 +38,7 @@ export function NotesByCharacterChart({ data }: { data: NotesByCharacter[] }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm">Notes by Character</CardTitle>
+        <CardTitle className="text-sm">{title}</CardTitle>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-64 w-full">

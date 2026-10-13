@@ -96,8 +96,10 @@ def list_notes(
     return query.order_by(CrisisNote.created_at.desc()).all()
 
 
-@router.post("", response_model=CrisisNoteResponse, status_code=status.HTTP_201_CREATED)
-def create_note(body: CrisisNoteCreate, db: Session = Depends(get_db)) -> CrisisNote:
+def build_note(db: Session, body: CrisisNoteCreate) -> CrisisNote:
+    """Validate and construct (but don't commit) a crisis note in the active
+    period. Shared with net worth transactions, which create their
+    justifying note in the same commit as the money change."""
     active_period = db.query(CrisisPeriod).filter(CrisisPeriod.is_active.is_(True)).first()
     if not active_period:
         raise HTTPException(status_code=422, detail="No active period. Create a period first.")
@@ -115,7 +117,7 @@ def create_note(body: CrisisNoteCreate, db: Session = Depends(get_db)) -> Crisis
     if not character:
         raise HTTPException(status_code=404, detail="Character not found.")
 
-    note = CrisisNote(
+    return CrisisNote(
         character_id=body.character_id,
         period_id=active_period.id,
         title=body.title,
@@ -124,6 +126,11 @@ def create_note(body: CrisisNoteCreate, db: Session = Depends(get_db)) -> Crisis
         priority=body.priority,
         note_type=body.note_type,
     )
+
+
+@router.post("", response_model=CrisisNoteResponse, status_code=status.HTTP_201_CREATED)
+def create_note(body: CrisisNoteCreate, db: Session = Depends(get_db)) -> CrisisNote:
+    note = build_note(db, body)
     db.add(note)
     db.commit()
     db.refresh(note)

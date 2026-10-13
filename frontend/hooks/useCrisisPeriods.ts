@@ -38,9 +38,15 @@ export function useArchivePeriod() {
   return useMutation({
     mutationFn: (id: number) => crisisPeriodsService.archive(id),
     onSuccess: (newPeriod) => {
+      // Archiving is the crisis update: notes and directives move to the
+      // archive, and net worth takes its market movement.
       qc.invalidateQueries({ queryKey: ["periods"] });
-      toast.success(`Next round started: ${newPeriod.name}`);
+      qc.invalidateQueries({ queryKey: ["notes"] });
+      qc.invalidateQueries({ queryKey: ["analytics"] });
+      qc.invalidateQueries({ queryKey: ["delegate-notes"] });
+      qc.invalidateQueries({ queryKey: ["net-worth"] });
+      toast.success(`Crisis update run. Now on ${newPeriod.name}.`);
     },
-    onError: (err: Error) => toast.error(err.message || "Failed to archive period."),
+    onError: (err: Error) => toast.error(err.message || "Failed to run crisis update."),
   });
 }
