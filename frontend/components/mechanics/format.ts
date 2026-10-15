@@ -15,6 +15,23 @@ export function formatNumber(value: number) {
   return plain.format(value);
 }
 
+const sig3 = new Intl.NumberFormat("en-US", { maximumSignificantDigits: 3 });
+const sig3Fixed = new Intl.NumberFormat("en-US", {
+  minimumSignificantDigits: 3,
+  maximumSignificantDigits: 3,
+});
+
+/** "$1.41M", "$2.00B", or "$123,000" — three significant figures, M/B for millions/billions. */
+export function formatMoneyCompact(value: number) {
+  const sign = value < 0 ? "-" : "";
+  const abs = Math.abs(value);
+  // Rounding can carry into the next unit (999,999 → 1.00M, 999.96M → 1.00B), so check after rounding.
+  if (Number(abs.toPrecision(3)) < 1_000_000) return `${sign}$${sig3.format(abs)}`;
+  const millions = abs / 1_000_000;
+  if (Number(millions.toPrecision(3)) < 1000) return `${sign}$${sig3Fixed.format(millions)}M`;
+  return `${sign}$${sig3Fixed.format(abs / 1_000_000_000)}B`;
+}
+
 /** "+1,200", "-300", or "--" for no change — matches the design's Difference column. */
 export function formatDiff(delta: number) {
   if (delta === 0) return "--";
