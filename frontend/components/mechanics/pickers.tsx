@@ -1,8 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ChevronDown } from "lucide-react";
+import { AlertTriangle, ChevronDown, X } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -82,41 +83,74 @@ export function DelegateMultiSelect(props: {
   delegates: CharacterResponse[] | undefined;
   value: number[];
   onChange: (ids: number[]) => void;
+  /** Delegates who already have a private directive this crisis update. */
+  withPrivate?: Set<number>;
 }) {
-  const names = props.delegates?.filter((d) => props.value.includes(d.id)).map((d) => d.name);
+  const selected = props.delegates?.filter((d) => props.value.includes(d.id)) ?? [];
+  const warn = (id: number) => props.withPrivate?.has(id) ?? false;
+  const warnTitle = "Already has a private directive this crisis update";
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          id={props.id}
-          type="button"
-          variant="outline"
-          className="w-full justify-between font-normal"
-        >
-          <span className={names?.length ? "truncate" : "truncate text-muted-foreground"}>
-            {names?.length ? names.join(", ") : "Select delegate(s)…"}
-          </span>
-          <ChevronDown className="text-muted-foreground" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="max-h-72">
-        {props.delegates?.map((d) => (
-          <DropdownMenuCheckboxItem
-            key={d.id}
-            checked={props.value.includes(d.id)}
-            // Keep the menu open so several delegates can be ticked in one go.
-            onSelect={(e) => e.preventDefault()}
-            onCheckedChange={(checked) =>
-              props.onChange(
-                checked ? [...props.value, d.id] : props.value.filter((id) => id !== d.id)
-              )
-            }
+    <div className="space-y-2">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            id={props.id}
+            type="button"
+            variant="outline"
+            className="w-full justify-between font-normal"
           >
-            {d.name}
-          </DropdownMenuCheckboxItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+            <span className={selected.length ? "truncate" : "truncate text-muted-foreground"}>
+              {selected.length ? `${selected.length} selected` : "Select delegate(s)…"}
+            </span>
+            <ChevronDown className="text-muted-foreground" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="max-h-72">
+          {props.delegates?.map((d) => (
+            <DropdownMenuCheckboxItem
+              key={d.id}
+              checked={props.value.includes(d.id)}
+              // Keep the menu open so several delegates can be ticked in one go.
+              onSelect={(e) => e.preventDefault()}
+              onCheckedChange={(checked) =>
+                props.onChange(
+                  checked ? [...props.value, d.id] : props.value.filter((id) => id !== d.id)
+                )
+              }
+            >
+              {warn(d.id) && (
+                <span title={warnTitle} aria-label={warnTitle} className="text-destructive">
+                  <AlertTriangle className="h-3.5 w-3.5" />
+                </span>
+              )}
+              {d.name}
+            </DropdownMenuCheckboxItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+      {selected.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {selected.map((d) => (
+            <Badge key={d.id} variant="secondary" className="gap-1 pr-1 font-normal">
+              {warn(d.id) && (
+                <span title={warnTitle} aria-label={warnTitle} className="text-destructive">
+                  <AlertTriangle className="h-3 w-3" />
+                </span>
+              )}
+              {d.name}
+              <button
+                type="button"
+                aria-label={`Remove ${d.name}`}
+                className="hover:text-destructive rounded-sm p-0.5"
+                onClick={() => props.onChange(props.value.filter((id) => id !== d.id))}
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
