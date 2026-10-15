@@ -14,7 +14,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useCreateDelegateNote, useSealHoldings } from "@/hooks/useMechanics";
+import { useActivePeriod } from "@/hooks/useCrisisPeriods";
+import { useCreateDelegateNote, useDelegateNotes, useSealHoldings } from "@/hooks/useMechanics";
 import type { CharacterResponse, DelegateNoteType } from "@/types/api";
 import { NOTE_TYPE_LABEL } from "./format";
 import { DelegateMultiSelect, FieldSelect } from "./pickers";
@@ -48,6 +49,13 @@ export function NewNoteDialog(props: {
   const [sealRows, setSealRows] = useState<SealRow[]>([]);
   const { mutate, isPending } = useCreateDelegateNote();
   const { data: holdings } = useSealHoldings();
+  // Delegates who already have a private directive this crisis update get a warning.
+  const { data: activePeriod } = useActivePeriod();
+  const { data: privateDirectives } = useDelegateNotes(
+    { period_id: activePeriod?.id, note_type: "PRIVATE_DIRECTIVE" },
+    props.open && !!activePeriod
+  );
+  const withPrivate = new Set(privateDirectives?.flatMap((n) => n.characters.map((c) => c.id)));
 
   useEffect(() => {
     if (props.open) {
@@ -119,6 +127,7 @@ export function NewNoteDialog(props: {
                 delegates={props.delegates}
                 value={delegateIds}
                 onChange={setDelegateIds}
+                withPrivate={withPrivate}
               />
             </div>
           </div>

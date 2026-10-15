@@ -8,7 +8,14 @@ import { format } from "date-fns";
 import { useNetWorthHistory, useNetWorths } from "@/hooks/useMechanics";
 import { cn } from "@/lib/utils";
 import type { DelegateNetWorth } from "@/types/api";
-import { difference, formatMoney, formatNumber, formatPct, halves, tickerFor } from "./format";
+import {
+  difference,
+  formatMoneyCompact,
+  formatNumber,
+  formatPct,
+  halves,
+  tickerFor,
+} from "./format";
 import { NetWorthChart, sortByChange, toneOf } from "./NetWorthViews";
 
 const frontroomHref = (id: number | null) => (id === null ? "/frontroom" : `/frontroom?delegate=${id}`);
@@ -18,9 +25,9 @@ const inkTone = (delta: number) =>
   delta > 0 ? "text-ink-up" : delta < 0 ? "text-ink-down" : "text-[var(--ink)]";
 const arrow = (delta: number) => (delta > 0 ? "▲" : delta < 0 ? "▼" : "–");
 
-function signed(delta: number) {
+function signed(delta: number, format: (value: number) => string = formatNumber) {
   if (delta === 0) return "UNCH";
-  return `${delta > 0 ? "+" : "−"}${formatNumber(Math.abs(delta))}`;
+  return `${delta > 0 ? "+" : "−"}${format(Math.abs(delta))}`;
 }
 
 /** Unsigned percent change; direction is carried by the arrow. */
@@ -153,7 +160,7 @@ function QuoteRow(props: { d: DelegateNetWorth }) {
         {formatNumber(d.net_worth)}
       </Placard>
       <Placard swap={swap} className={cn("justify-self-end", inkTone(diff))}>
-        {signed(diff)}
+        {signed(diff, formatMoneyCompact)}
       </Placard>
       <Placard swap={swap} className={cn("justify-self-end", inkTone(diff))}>
         {arrow(diff)} {pct(d)}
@@ -292,7 +299,7 @@ function SingleQuote(props: { delegate: DelegateNetWorth }) {
         </div>
         <div className="space-y-5 text-center">
           <p className="text-6xl md:text-8xl xl:text-9xl">
-            <DigitCards value={formatMoney(d.net_worth)} swap={swap} />
+            <DigitCards value={formatMoneyCompact(d.net_worth)} swap={swap} />
           </p>
           <p className="flex justify-center gap-3 text-3xl md:text-5xl">
             <Placard swap={swap} className={inkTone(diff)}>
@@ -312,9 +319,12 @@ function SingleQuote(props: { delegate: DelegateNetWorth }) {
       </Board>
 
       <div className="flex flex-wrap justify-center gap-5">
-        <StatSlip label="Open" value={formatNumber(d.baseline_net_worth)} />
-        <StatSlip label="High" value={values.length ? formatNumber(Math.max(...values)) : "—"} />
-        <StatSlip label="Low" value={values.length ? formatNumber(Math.min(...values)) : "—"} />
+        <StatSlip label="Open" value={formatMoneyCompact(d.baseline_net_worth)} />
+        <StatSlip
+          label="High"
+          value={values.length ? formatMoneyCompact(Math.max(...values)) : "—"}
+        />
+        <StatSlip label="Low" value={values.length ? formatMoneyCompact(Math.min(...values)) : "—"} />
         <StatSlip label="Trades" value={history ? String(Math.max(history.length - 1, 0)) : "—"} />
       </div>
     </div>
