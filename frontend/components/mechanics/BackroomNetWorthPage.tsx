@@ -105,7 +105,7 @@ export function BackroomNetWorthPage() {
         />
         <StatTile
           label="Top loser"
-          value={loser ? <span className="text-destructive">{formatDiff(difference(loser))}</span> : "—"}
+          value={loser ? <span className="text-destructive">{formatDiffCompact(difference(loser))}</span> : "—"}
           hint={loser?.name}
         />
         <StatTile
