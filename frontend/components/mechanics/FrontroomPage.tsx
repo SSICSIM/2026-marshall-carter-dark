@@ -13,7 +13,7 @@ import {
   formatMoneyCompact,
   formatNumber,
   formatPct,
-  halves,
+  longNameClass,
   tickerFor,
 } from "./format";
 import { NetWorthChart, sortByChange, toneOf } from "./NetWorthViews";
@@ -153,7 +153,12 @@ function QuoteRow(props: { d: DelegateNetWorth }) {
       )}
     >
       <span className="font-bold tracking-wider">{tickerFor(d.name)}</span>
-      <span className="truncate text-lg tracking-wider text-[var(--board-dim)] uppercase md:text-xl">
+      <span
+        className={cn(
+          "text-lg tracking-wider text-[var(--board-dim)] uppercase md:text-xl",
+          longNameClass(d.name, 50) ?? "truncate"
+        )}
+      >
         {d.name}
       </span>
       <Placard swap={swap} className="justify-self-end font-semibold">
@@ -225,8 +230,6 @@ function QuotationBoard(props: { delegates: DelegateNetWorth[] | undefined }) {
   const byChange = [...props.delegates].sort((a, b) => difference(b) - difference(a));
   const gainer = byChange.find((d) => difference(d) > 0);
   const loser = [...byChange].reverse().find((d) => difference(d) < 0);
-  // Split into two columns only once a single column would scroll.
-  const [left, right] = sorted.length > 8 ? halves(sorted) : [sorted, []];
 
   return (
     <div className="space-y-8">
@@ -238,10 +241,7 @@ function QuotationBoard(props: { delegates: DelegateNetWorth[] | undefined }) {
         <h2 className="mb-5 text-center text-2xl font-semibold tracking-wide uppercase">
           Quotations
         </h2>
-        <div className={cn("grid gap-x-14 gap-y-6", right.length > 0 && "xl:grid-cols-2")}>
-          <QuoteColumn rows={left} />
-          {right.length > 0 && <QuoteColumn rows={right} />}
-        </div>
+        <QuoteColumn rows={sorted} />
       </Board>
     </div>
   );

@@ -16,7 +16,7 @@ import {
 } from "@/hooks/useMechanics";
 import { delegateHref, TickerBadge } from "./BackroomNetWorthPage";
 import { Section, StatTile } from "./BackroomShell";
-import { diffClass, difference, formatDiff, formatMoney, formatPct } from "./format";
+import { diffClass, difference, formatDiff, formatMoneyCompact, formatPct } from "./format";
 import { EditNetWorthDialog, TransferDialog } from "./NetWorthDialogs";
 import { NetWorthChart, TransactionLog, toneOf } from "./NetWorthViews";
 import { NewNoteDialog } from "./NoteDialog";
@@ -76,7 +76,7 @@ export function BackroomDelegatePage(props: { delegateId: number }) {
       ) : (
         <>
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <StatTile label="Net worth" value={formatMoney(delegate.net_worth)} />
+            <StatTile label="Net worth" value={formatMoneyCompact(delegate.net_worth)} />
             <StatTile
               label="Change this update"
               value={<span className={diffClass(diff)}>{formatDiff(diff)}</span>}

@@ -14,9 +14,11 @@ import {
   diffClass,
   difference,
   formatDiff,
-  formatMoney,
+  formatDiffCompact,
+  formatMoneyCompact,
   formatNumber,
   formatPct,
+  longNameClass,
   tickerFor,
 } from "./format";
 import { MechTable, type Column } from "./MechTable";
@@ -40,13 +42,13 @@ const columns: Column<DelegateNetWorth>[] = [
     cell: (d) => (
       <Link href={delegateHref(d.id)} className="flex items-center gap-2.5 font-medium hover:underline">
         <TickerBadge name={d.name} />
-        {d.name}
+        <span className={longNameClass(d.name)}>{d.name}</span>
       </Link>
     ),
   },
   {
     header: "Net worth",
-    cell: (d) => formatMoney(d.net_worth),
+    cell: (d) => formatMoneyCompact(d.net_worth),
     className: "text-right tabular-nums",
   },
   {
@@ -95,10 +97,10 @@ export function BackroomNetWorthPage() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatTile label="Total net worth" value={formatMoney(total)} hint={`${delegates?.length ?? 0} delegates`} />
+        <StatTile label="Total net worth" value={formatMoneyCompact(total)} hint={`${delegates?.length ?? 0} delegates`} />
         <StatTile
           label="Top gainer"
-          value={gainer ? <span className="text-chart-2">{formatDiff(difference(gainer))}</span> : "—"}
+          value={gainer ? <span className="text-chart-2">{formatDiffCompact(difference(gainer))}</span> : "—"}
           hint={gainer?.name}
         />
         <StatTile

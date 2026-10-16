@@ -128,28 +128,41 @@ export function DelegateMultiSelect(props: {
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
-      {selected.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {selected.map((d) => (
-            <Badge key={d.id} variant="secondary" className="gap-1 pr-1 font-normal">
-              {warn(d.id) && (
-                <span title={warnTitle} aria-label={warnTitle} className="text-destructive">
-                  <AlertTriangle className="h-3 w-3" />
-                </span>
-              )}
-              {d.name}
-              <button
-                type="button"
-                aria-label={`Remove ${d.name}`}
-                className="hover:text-destructive rounded-sm p-0.5"
-                onClick={() => props.onChange(props.value.filter((id) => id !== d.id))}
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </Badge>
-          ))}
-        </div>
-      )}
+    </div>
+  );
+}
+
+/** Removable chips for the delegates picked in a DelegateMultiSelect. Meant to span the full row. */
+export function DelegateChips(props: {
+  delegates: CharacterResponse[] | undefined;
+  value: number[];
+  onChange: (ids: number[]) => void;
+  withPrivate?: Set<number>;
+}) {
+  const selected = props.delegates?.filter((d) => props.value.includes(d.id)) ?? [];
+  const warn = (id: number) => props.withPrivate?.has(id) ?? false;
+  const warnTitle = "Already has a private directive this crisis update";
+  if (selected.length === 0) return null;
+  return (
+    <div className="flex w-full flex-wrap justify-start gap-1.5">
+      {selected.map((d) => (
+        <Badge key={d.id} variant="secondary" className="gap-1 pr-1 font-normal">
+          {warn(d.id) && (
+            <span title={warnTitle} aria-label={warnTitle} className="text-destructive">
+              <AlertTriangle className="h-3 w-3" />
+            </span>
+          )}
+          {d.name}
+          <button
+            type="button"
+            aria-label={`Remove ${d.name}`}
+            className="hover:text-destructive rounded-sm p-0.5"
+            onClick={() => props.onChange(props.value.filter((id) => id !== d.id))}
+          >
+            <X className="h-3 w-3" />
+          </button>
+        </Badge>
+      ))}
     </div>
   );
 }

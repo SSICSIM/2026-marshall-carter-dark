@@ -5,7 +5,7 @@ import { format } from "date-fns";
 
 import { Badge } from "@/components/ui/badge";
 import type { DelegateNoteResponse, DelegateSeals, SealAction, SealMovement } from "@/types/api";
-import { NOTE_TYPE_LABEL } from "./format";
+import { longNameClass, NOTE_TYPE_LABEL } from "./format";
 import { MechTable, RowAction, type Column } from "./MechTable";
 import type { SealActionMode } from "./SealDialogs";
 
@@ -19,7 +19,7 @@ export function SealHoldingsTable(props: {
       header: "Delegate",
       cell: (d) => (
         <Link href={`/backroom/delegates/${d.id}`} className="font-medium hover:underline">
-          {d.name}
+          <span className={longNameClass(d.name)}>{d.name}</span>
         </Link>
       ),
     },

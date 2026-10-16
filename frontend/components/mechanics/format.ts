@@ -21,21 +21,44 @@ const sig3Fixed = new Intl.NumberFormat("en-US", {
   maximumSignificantDigits: 3,
 });
 
-/** "$1.41M", "$2.00B", or "$123,000" — three significant figures, M/B for millions/billions. */
+/** Ascending units for compact money; the last one absorbs anything larger. */
+const COMPACT_UNITS: [size: number, suffix: string][] = [
+  [1_000_000, "M"],
+  [1_000_000_000, "B"],
+  [1_000_000_000_000, "T"],
+  [1_000_000_000_000_000, "Q"],
+];
+
+/** "$1.41M", "$2.00B", "$3.50T", "$1.20Q", or "$123,000" — three significant figures. */
 export function formatMoneyCompact(value: number) {
   const sign = value < 0 ? "-" : "";
   const abs = Math.abs(value);
   // Rounding can carry into the next unit (999,999 → 1.00M, 999.96M → 1.00B), so check after rounding.
   if (Number(abs.toPrecision(3)) < 1_000_000) return `${sign}$${sig3.format(abs)}`;
-  const millions = abs / 1_000_000;
-  if (Number(millions.toPrecision(3)) < 1000) return `${sign}$${sig3Fixed.format(millions)}M`;
-  return `${sign}$${sig3Fixed.format(abs / 1_000_000_000)}B`;
+  const [size, suffix] =
+    COMPACT_UNITS.find(([s]) => Number((abs / s).toPrecision(3)) < 1000) ??
+    COMPACT_UNITS[COMPACT_UNITS.length - 1];
+  return `${sign}$${sig3Fixed.format(abs / size)}${suffix}`;
+}
+
+/**
+ * Table cells are nowrap; names over `max` characters opt back into wrapping onto multiple lines.
+ * The max-w-[50ch] cap is what forces the wrap — without a width limit the cell just widens.
+ */
+export function longNameClass(name: string, max = 50) {
+  return name.length > max ? "min-w-0 max-w-[50ch] whitespace-normal break-words" : undefined;
 }
 
 /** "+1,200", "-300", or "--" for no change — matches the design's Difference column. */
 export function formatDiff(delta: number) {
   if (delta === 0) return "--";
   return `${delta > 0 ? "+" : "-"}${plain.format(Math.abs(delta))}`;
+}
+
+/** "+$1.20M", "-$300,000", or "--" for no change — signed version of formatMoneyCompact. */
+export function formatDiffCompact(delta: number) {
+  if (delta === 0) return "--";
+  return `${delta > 0 ? "+" : "-"}${formatMoneyCompact(Math.abs(delta))}`;
 }
 
 export function formatPct(delta: number, base: number) {

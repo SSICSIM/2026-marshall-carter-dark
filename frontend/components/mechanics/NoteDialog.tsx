@@ -18,7 +18,7 @@ import { useActivePeriod } from "@/hooks/useCrisisPeriods";
 import { useCreateDelegateNote, useDelegateNotes, useSealHoldings } from "@/hooks/useMechanics";
 import type { CharacterResponse, DelegateNoteType } from "@/types/api";
 import { NOTE_TYPE_LABEL } from "./format";
-import { DelegateMultiSelect, FieldSelect } from "./pickers";
+import { DelegateChips, DelegateMultiSelect, FieldSelect } from "./pickers";
 
 const TYPE_OPTIONS = (Object.keys(NOTE_TYPE_LABEL) as DelegateNoteType[]).map((t) => ({
   value: t,
@@ -127,10 +127,15 @@ export function NewNoteDialog(props: {
                 delegates={props.delegates}
                 value={delegateIds}
                 onChange={setDelegateIds}
-                withPrivate={withPrivate}
               />
             </div>
           </div>
+          <DelegateChips
+            delegates={props.delegates}
+            value={delegateIds}
+            onChange={setDelegateIds}
+            withPrivate={withPrivate}
+          />
           <div className="space-y-1">
             <Label htmlFor="note-contents">Contents</Label>
             <Textarea
